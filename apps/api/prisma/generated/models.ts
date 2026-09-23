@@ -8,8 +8,8 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User.js'
-export type * from './models/DictionaryEntry.js'
-export type * from './models/UserVocabulary.js'
-export type * from './models/ExerciseAttempt.js'
-export type * from './commonInputTypes.js'
+export type * from './models/User'
+export type * from './models/DictionaryEntry'
+export type * from './models/UserVocabulary'
+export type * from './models/ExerciseAttempt'
+export type * from './commonInputTypes'
