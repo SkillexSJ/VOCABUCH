@@ -1,6 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "DATABASE_URL",
+    "NODE_ENV",
+    "API_PREFIX",
+    "WEB_PORT",
+    "PORT",
+    "NEXT_PUBLIC_API_URL",
+    "CORS_ORIGINS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
