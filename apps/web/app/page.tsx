@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useDebounce } from '@/lib/use-debounce';
 import { UserVocabulary, UserProgressStats, CreateVocabularyDto, UpdateVocabularyDto } from '@vocabulary/types';
 import { api } from '@/lib/api';
 import { useLanguagePair } from '@/lib/use-language-pair';
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(24);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 400); // only hits API after 400ms pause
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [listLoading, setListLoading] = useState(true);
 
@@ -53,7 +55,8 @@ export default function DashboardPage() {
     }
   }, [activePair]);
 
-  // Load vocabulary list
+  // Load vocabulary list — uses debouncedSearch so the API is only called
+  // after the user pauses typing (not on every keystroke).
   const fetchVocabulary = useCallback(async () => {
     try {
       setListLoading(true);
@@ -61,7 +64,7 @@ export default function DashboardPage() {
         sourceLanguage: activePair.source,
         targetLanguage: activePair.target,
         status: statusFilter,
-        search: search.trim() || undefined,
+        search: debouncedSearch.trim() || undefined,
         page,
         limit,
       });
@@ -72,7 +75,7 @@ export default function DashboardPage() {
     } finally {
       setListLoading(false);
     }
-  }, [activePair, statusFilter, search, page, limit]);
+  }, [activePair, statusFilter, debouncedSearch, page, limit]);
 
   useEffect(() => {
     fetchStats();
