@@ -1,22 +1,20 @@
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from '../src/common/interceptors/logging.interceptor';
 import { ConfigService } from '@nestjs/config';
 import compression from 'compression';
-import express from 'express';
-import { Express } from 'express';
 import { IncomingMessage, ServerResponse } from 'http';
 
-let cachedApp: Express;
+type ExpressApp = (req: IncomingMessage, res: ServerResponse) => void;
 
-async function createApp(): Promise<Express> {
-  const expressApp = express();
-  const adapter = new ExpressAdapter(expressApp);
+let cachedApp: ExpressApp;
 
-  const app = await NestFactory.create(AppModule, adapter, {
+async function createApp(): Promise<ExpressApp> {
+  // Let NestJS create and own the Express instance — do NOT pre-create it.
+  // Passing a pre-created express() to ExpressAdapter causes 'app.router is deprecated' in Express 4.
+  const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
 
@@ -53,7 +51,8 @@ async function createApp(): Promise<Express> {
 
   await app.init();
 
-  return expressApp;
+  // Get the underlying Express instance after NestJS has fully initialised it
+  return app.getHttpAdapter().getInstance();
 }
 
 export default async function handler(
