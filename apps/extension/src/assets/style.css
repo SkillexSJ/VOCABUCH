@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Semantic Domain Tokens: German Articles (der / die / das) */
+  --color-article-der: var(--article-der);
+  --color-article-der-foreground: var(--article-der-foreground);
+  --color-article-der-muted: var(--article-der-muted);
+  --color-article-der-border: var(--article-der-border);
+
+  --color-article-die: var(--article-die);
+  --color-article-die-foreground: var(--article-die-foreground);
+  --color-article-die-muted: var(--article-die-muted);
+  --color-article-die-border: var(--article-die-border);
+
+  --color-article-das: var(--article-das);
+  --color-article-das-foreground: var(--article-das-foreground);
+  --color-article-das-muted: var(--article-das-muted);
+  --color-article-das-border: var(--article-das-border);
+
+  /* Semantic Feedback & Notification Tokens */
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-muted: var(--warning-muted);
+  --color-warning-border: var(--warning-border);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-muted: var(--success-muted);
+  --color-success-border: var(--success-border);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-muted: var(--info-muted);
+  --color-info-border: var(--info-border);
+}
+
+:root {
+  --background: rgb(255, 255, 255);
+  --foreground: rgb(10, 10, 10);
+  --card: rgb(248, 250, 252);
+  --card-foreground: rgb(10, 10, 10);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(10, 10, 10);
+  --primary: rgb(255, 161, 1);
+  --primary-foreground: rgb(255, 255, 255);
+  --secondary: rgb(0, 26, 73);
+  --secondary-foreground: rgb(240, 249, 255);
+  --muted: rgb(241, 245, 249);
+  --muted-foreground: rgb(115, 115, 115);
+  --accent: rgb(255, 210, 49);
+  --accent-foreground: rgb(255, 255, 255);
+  --destructive: rgb(231, 0, 11);
+  --destructive-foreground: rgb(255, 255, 255);
+  --border: rgb(229, 229, 229);
+  --input: rgb(229, 229, 229);
+  --ring: rgb(161, 161, 161);
+
+  /* German Articles - Exact match with frontend */
+  --article-der: rgb(37, 99, 235);
+  --article-der-foreground: rgb(255, 255, 255);
+  --article-der-muted: rgb(239, 246, 255);
+  --article-der-border: rgb(191, 219, 254);
+
+  --article-die: rgb(225, 29, 72);
+  --article-die-foreground: rgb(255, 255, 255);
+  --article-die-muted: rgb(255, 241, 242);
+  --article-die-border: rgb(254, 205, 211);
+
+  --article-das: rgb(16, 185, 129);
+  --article-das-foreground: rgb(255, 255, 255);
+  --article-das-muted: rgb(236, 253, 245);
+  --article-das-border: rgb(167, 243, 208);
+
+  /* Status */
+  --success: rgb(16, 185, 129);
+  --success-foreground: rgb(255, 255, 255);
+  --success-muted: rgb(236, 253, 245);
+  --success-border: rgb(167, 243, 208);
+
+  --warning: rgb(245, 158, 11);
+  --warning-foreground: rgb(255, 255, 255);
+  --warning-muted: rgb(254, 243, 199);
+  --warning-border: rgb(253, 230, 138);
+
+  --info: rgb(59, 130, 246);
+  --info-foreground: rgb(255, 255, 255);
+  --info-muted: rgb(239, 246, 255);
+  --info-border: rgb(191, 219, 254);
+}
+
+.dark {
+  --background: rgb(10, 10, 10);
+  --foreground: rgb(250, 250, 250);
+  --card: rgb(23, 23, 23);
+  --card-foreground: rgb(250, 250, 250);
+  --popover: rgb(26, 26, 26);
+  --popover-foreground: rgb(250, 250, 250);
+  --primary: rgb(255, 223, 32);
+  --primary-foreground: rgb(71, 32, 0);
+  --secondary: rgb(116, 212, 255);
+  --secondary-foreground: rgb(0, 48, 79);
+  --muted: rgb(38, 38, 38);
+  --muted-foreground: rgb(161, 161, 161);
+  --accent: rgb(64, 64, 64);
+  --accent-foreground: rgb(250, 250, 250);
+  --destructive: rgb(255, 100, 103);
+  --destructive-foreground: rgb(250, 250, 250);
+  --border: rgb(40, 40, 40);
+  --input: rgb(52, 52, 52);
+  --ring: rgb(115, 115, 115);
+
+  /* German Articles Dark - Exact match with frontend */
+  --article-der: rgb(96, 165, 250);
+  --article-der-foreground: rgb(239, 246, 255);
+  --article-der-muted: rgba(30, 58, 138, 0.4);
+  --article-der-border: rgba(59, 130, 246, 0.4);
+
+  --article-die: rgb(251, 113, 133);
+  --article-die-foreground: rgb(255, 241, 242);
+  --article-die-muted: rgba(136, 19, 55, 0.4);
+  --article-die-border: rgba(225, 29, 72, 0.4);
+
+  --article-das: rgb(52, 211, 153);
+  --article-das-foreground: rgb(236, 253, 245);
+  --article-das-muted: rgba(6, 78, 59, 0.4);
+  --article-das-border: rgba(16, 185, 129, 0.4);
+
+  /* Status Dark */
+  --success: rgb(52, 211, 153);
+  --success-foreground: rgb(236, 253, 245);
+  --success-muted: rgba(6, 78, 59, 0.4);
+  --success-border: rgba(16, 185, 129, 0.4);
+
+  --warning: rgb(251, 191, 36);
+  --warning-foreground: rgb(254, 243, 199);
+  --warning-muted: rgba(120, 53, 15, 0.4);
+  --warning-border: rgba(245, 158, 11, 0.4);
+
+  --info: rgb(96, 165, 250);
+  --info-foreground: rgb(239, 246, 255);
+  --info-muted: rgba(30, 58, 138, 0.4);
+  --info-border: rgba(59, 130, 246, 0.4);
+}
+
+:host {
+  all: initial;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light dark;
+}

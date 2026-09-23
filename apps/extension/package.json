@@ -1,0 +1,32 @@
+{
+  "name": "@vocabulary/extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@keyline-icons/react": "^1.1.0",
+    "@vocabulary/types": "workspace:*",
+    "@vocabulary/validation": "workspace:*",
+    "lucide-react": "^1.47.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/chrome": "^0.0.313",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@wxt-dev/module-react": "^1.2.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5",
+    "wxt": "^0.21.4"
+  }
+}

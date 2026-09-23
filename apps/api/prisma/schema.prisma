@@ -1,0 +1,130 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum LearningStatus {
+  SAVED
+  NEW
+  LEARNING
+  INCOMPLETE
+  PROFICIENT
+  MASTERED
+}
+
+enum ExerciseType {
+  FLASHCARD
+  MULTIPLE_CHOICE
+  TYPING
+  CLOZE
+  ARTICLE_GUESS
+}
+
+// Optional User model - ready for future auth without blocking unauthenticated testing
+model User {
+  id             String            @id @default("default-user")
+  email          String?           @unique
+  name           String?           @default("Default User")
+  role           UserRole          @default(USER)
+  nativeLanguage String?
+  targetLanguage String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  vocabularies   UserVocabulary[]
+  attempts       ExerciseAttempt[]
+
+  @@map("users")
+}
+
+model DictionaryEntry {
+  id               String           @id @default(uuid())
+  word             String           @unique
+  language         String           @default("en")
+  article          String?          // e.g. "der", "die", "das"
+  plural           String?          // e.g. "-e (die Hunde)", "¨-er"
+  phonetic         String?
+  audioUrl         String?
+  definitions      Json             // Array of { partOfSpeech, definition, example, synonyms }
+  translations     Json?            // Array of { targetLanguage, translation }
+  sourceProvider   String           @default("system")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userVocabularies UserVocabulary[]
+
+  @@index([word])
+  @@map("dictionary_entries")
+}
+
+model UserVocabulary {
+  id                 String           @id @default(uuid())
+  userId             String?          @default("default-user")
+  dictionaryEntryId  String?
+  word               String
+  sourceLanguage     String           @default("de") // e.g. "de" or "en"
+  targetLanguage     String           @default("en") // e.g. "en" or "bn"
+  article            String?          // e.g. "der", "die", "das"
+  plural             String?          // e.g. "-e (die Hunde)", "¨-er"
+  translation        String?
+  definition         String?
+  partOfSpeech       String?
+  contextSentence    String?          @db.Text
+  contextSourceUrl   String?
+  tags               String[]         @default([])
+  notes              String?          @db.Text
+
+  // Learning Engine State (6-Tier Mastery Model)
+  status             LearningStatus   @default(SAVED)
+  masteryScore       Float            @default(0.0) // 0.0 to 100.0%
+  consecutiveCorrect Int              @default(0)
+  totalAttempts      Int              @default(0)
+  correctAttempts    Int              @default(0)
+  priorityScore      Float            @default(0.0) // High score = prioritized for review
+  intervalDays       Int              @default(1)
+  easeFactor         Float            @default(2.5)
+  nextReviewAt       DateTime         @default(now())
+  lastReviewedAt     DateTime?
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  user               User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  dictionaryEntry    DictionaryEntry? @relation(fields: [dictionaryEntryId], references: [id], onDelete: SetNull)
+  attempts           ExerciseAttempt[]
+
+  @@unique([userId, sourceLanguage, word])
+  @@index([userId, sourceLanguage, targetLanguage, status])
+  @@index([userId, sourceLanguage, targetLanguage, priorityScore])
+  @@index([userId, nextReviewAt])
+  @@map("user_vocabularies")
+}
+
+model ExerciseAttempt {
+  id                   String          @id @default(uuid())
+  userId               String?         @default("default-user")
+  userVocabularyId     String
+  exerciseType         ExerciseType
+  isCorrect            Boolean
+  userResponse         String?
+  timeSpentMs          Int?
+  previousStatus       LearningStatus
+  newStatus            LearningStatus
+  previousMasteryScore Float
+  newMasteryScore      Float
+  attemptedAt          DateTime        @default(now())
+
+  user                 User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vocabulary           UserVocabulary  @relation(fields: [userVocabularyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, attemptedAt])
+  @@index([userVocabularyId])
+  @@map("exercise_attempts")
+}
