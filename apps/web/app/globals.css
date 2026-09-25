@@ -130,11 +130,16 @@
   --shadow-color: #000000;
   --shadow-2xs: 3px 3px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 3px 3px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 2px 4px -1px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 4px 6px -1px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-sm:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 3px 3px 3px 0px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
@@ -185,11 +190,16 @@
   --shadow-color: #000000;
   --shadow-2xs: 3px 3px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 3px 3px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 1px 2px -1px hsl(0 0% 0% / 0.10);
-  --shadow-md: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 2px 4px -1px hsl(0 0% 0% / 0.10);
-  --shadow-lg: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 4px 6px -1px hsl(0 0% 0% / 0.10);
-  --shadow-xl: 3px 3px 3px 0px hsl(0 0% 0% / 0.10), 3px 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-sm:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    3px 3px 3px 0px hsl(0 0% 0% / 0.1), 3px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 3px 3px 3px 0px hsl(0 0% 0% / 0.25);
 }
 

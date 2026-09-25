@@ -19,6 +19,7 @@ import {
   Layers,
   Bookmark as BookMarked,
   ArrowLeft,
+  RotateCcw,
 } from "@keyline-icons/react";
 
 interface PracticeArenaProps {
@@ -127,8 +128,10 @@ export function PracticeArena({
             const hasCards = Array.isArray(parsed.queue) && parsed.queue.length > 0;
             const notExpired = Date.now() - (parsed.timestamp || 0) < 1000 * 60 * 60 * 4;
             const notFinished = parsed.currentIndex < parsed.queue.length;
+            const isMatchingMode = parsed.mode === initialMode;
 
-            if (isValidPair && hasCards && notExpired && notFinished) {
+            // Only restore if saved session matches the requested mode (don't load trainer deck into article mode)
+            if (isValidPair && hasCards && notExpired && notFinished && isMatchingMode) {
               setQueue(parsed.queue);
               setCurrentIndex(parsed.currentIndex || 0);
               setCorrectCount(parsed.correctCount || 0);
@@ -152,11 +155,15 @@ export function PracticeArena({
       setWrongCount(0);
       setLastFeedback(null);
 
-      const items = await api.practice.getQueue({
-        sourceLanguage: activePair.source,
-        targetLanguage: activePair.target,
-        limit: 20,
-      });
+      const items = await api.practice.getQueue(
+        {
+          sourceLanguage: activePair.source,
+          targetLanguage: activePair.target,
+          limit: 20,
+          exerciseType: initialMode === "article" ? "ARTICLE_GUESS" : undefined,
+        },
+        true // bypassCache to ensure fresh randomized unique words every session
+      );
 
       const newQueue = items || [];
       setQueue(newQueue);
@@ -176,7 +183,7 @@ export function PracticeArena({
   }, [initSession]);
 
   // Handle switching practice modes (Multiple Choice, Flashcards, Article)
-  const handleModeChange = (newMode: PracticeMode) => {
+  const handleModeChange = async (newMode: PracticeMode) => {
     setMode(newMode);
     setCurrentIndex(0);
     setIsRevealed(false);
@@ -192,7 +199,38 @@ export function PracticeArena({
       }
     });
 
-    persistSession(0, correctCount, wrongCount, queue, newMode);
+    // When switching into or out of Article mode, fetch a dedicated queue for that mode
+    if (newMode === "article" || mode === "article") {
+      try {
+        setLoading(true);
+        setCompleted(false);
+        setCorrectCount(0);
+        setWrongCount(0);
+        setLastFeedback(null);
+
+        const items = await api.practice.getQueue(
+          {
+            sourceLanguage: activePair.source,
+            targetLanguage: activePair.target,
+            limit: 20,
+            exerciseType: newMode === "article" ? "ARTICLE_GUESS" : undefined,
+          },
+          true
+        );
+
+        const newQueue = items || [];
+        setQueue(newQueue);
+        if (newQueue.length > 0) {
+          persistSession(0, 0, 0, newQueue, newMode);
+        }
+      } catch (err) {
+        console.error("Failed to load queue for new mode:", err);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      persistSession(0, correctCount, wrongCount, queue, newMode);
+    }
   };
 
   // Restart session with fresh queue from server
@@ -212,6 +250,7 @@ export function PracticeArena({
           sourceLanguage: activePair.source,
           targetLanguage: activePair.target,
           limit: 20,
+          exerciseType: mode === "article" ? "ARTICLE_GUESS" : undefined,
         },
         true // bypassCache to fetch fresh cards
       );
@@ -238,55 +277,55 @@ export function PracticeArena({
   const activeDeck =
     mode === "article" ? queue.filter((item) => !!item.article) : queue;
 
-  // Submit answer
-  const handleAnswer = async (isCorrect: boolean) => {
+  // Submit answer with zero-latency optimistic progression
+  const handleAnswer = (isCorrect: boolean) => {
     const currentCard = activeDeck[currentIndex];
-    if (!currentCard || submitting) return;
+    if (!currentCard) return;
 
-    try {
-      setSubmitting(true);
-      const res = await api.practice.submitAttempt({
+    const nextCorrect = isCorrect ? correctCount + 1 : correctCount;
+    const nextWrong = !isCorrect ? wrongCount + 1 : wrongCount;
+
+    if (isCorrect) {
+      setCorrectCount(nextCorrect);
+    } else {
+      setWrongCount(nextWrong);
+    }
+
+    setLastFeedback({
+      word: currentCard.word,
+      isCorrect,
+      newStatus: currentCard.status,
+    });
+
+    // 1. Non-blocking asynchronous background sync to API
+    const exerciseType =
+      mode === "trainer"
+        ? "MULTIPLE_CHOICE"
+        : mode === "article"
+          ? "ARTICLE_GUESS"
+          : "FLASHCARD";
+
+    api.practice
+      .submitAttempt({
         userVocabularyId: currentCard.id,
-        exerciseType:
-          mode === "trainer"
-            ? "MULTIPLE_CHOICE"
-            : mode === "article"
-              ? "ARTICLE_GUESS"
-              : "FLASHCARD",
+        exerciseType,
         isCorrect,
+      })
+      .catch((err) => {
+        console.warn("Background practice attempt sync failed:", err);
       });
 
-      const nextCorrect = isCorrect ? correctCount + 1 : correctCount;
-      const nextWrong = !isCorrect ? wrongCount + 1 : wrongCount;
+    // 2. Instant optimistic advancement to next card (0ms latency!)
+    const nextIndex = currentIndex + 1;
 
-      if (isCorrect) {
-        setCorrectCount(nextCorrect);
-      } else {
-        setWrongCount(nextWrong);
-      }
-
-      setLastFeedback({
-        word: currentCard.word,
-        isCorrect,
-        newStatus: res.newStatus,
-      });
-
-      const nextIndex = currentIndex + 1;
-
-      // Advance to next card or complete session
-      if (nextIndex >= activeDeck.length) {
-        setCompleted(true);
-        clearSession();
-        if (onSessionComplete) onSessionComplete();
-      } else {
-        setCurrentIndex(nextIndex);
-        setIsRevealed(false);
-        persistSession(nextIndex, nextCorrect, nextWrong, queue, mode);
-      }
-    } catch (err) {
-      console.error("Failed to submit exercise attempt:", err);
-    } finally {
-      setSubmitting(false);
+    if (nextIndex >= activeDeck.length) {
+      setCompleted(true);
+      clearSession();
+      if (onSessionComplete) onSessionComplete();
+    } else {
+      setCurrentIndex(nextIndex);
+      setIsRevealed(false);
+      persistSession(nextIndex, nextCorrect, nextWrong, queue, mode);
     }
   };
 
@@ -375,7 +414,15 @@ export function PracticeArena({
           (der, die, das) assigned. Use the other practice modes, or add
           articles to your nouns in the Library!
         </p>
-        <div className="flex items-center justify-center gap-2 pt-2">
+        <div className="flex items-center justify-center gap-2 pt-2 flex-wrap">
+          <Button
+            size="sm"
+            onClick={handleRestart}
+            className="text-xs gap-1.5"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Load German Nouns
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -384,7 +431,7 @@ export function PracticeArena({
           >
             Switch to Multiple Choice
           </Button>
-          <Button size="sm" onClick={handleReturnToLibrary} className="text-xs">
+          <Button size="sm" variant="ghost" onClick={handleReturnToLibrary} className="text-xs">
             Return to Library
           </Button>
         </div>
@@ -474,6 +521,7 @@ export function PracticeArena({
       {/* Mode 1: Multiple Choice Guessing Trainer */}
       {mode === "trainer" ? (
         <QuizTrainer
+          key={`quiz-${currentCard.id}`}
           card={currentCard}
           allCards={activeDeck}
           activePair={activePair}
@@ -483,6 +531,7 @@ export function PracticeArena({
       ) : mode === "article" ? (
         /* Mode 2: German Article Trainer (der / die / das) */
         <ArticleTrainer
+          key={`article-${currentCard.id}`}
           card={currentCard}
           onAnswer={handleAnswer}
           submitting={submitting}
@@ -491,6 +540,7 @@ export function PracticeArena({
         /* Mode 3: Flashcard Review Arena */
         <div className="space-y-5">
           <Flashcard
+            key={`flashcard-${currentCard.id}`}
             card={currentCard}
             isRevealed={isRevealed}
             onToggleReveal={() => setIsRevealed((v) => !v)}

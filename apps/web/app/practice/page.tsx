@@ -50,7 +50,7 @@ function PracticeContent() {
       />
 
       {/* Main Practice Workspace */}
-      <main className="flex-1 mx-auto w-full max-w-4xl px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <main className="flex-1 mx-auto w-full max-w-4xl px-4 sm:px-6 pt-3 sm:pt-4 pb-6 sm:pb-8 space-y-5 sm:space-y-6">
         {/* Navigation Breadcrumb / Deck Context */}
         <div className="flex items-center justify-between border-b border-border/40 pb-3">
           <Link

@@ -11,29 +11,50 @@ interface QuizTrainerProps {
   card: UserVocabulary;
   allCards: UserVocabulary[];
   activePair: LanguagePair;
-  onAnswer: (isCorrect: boolean) => Promise<void>;
+  onAnswer: (isCorrect: boolean) => Promise<void> | void;
   submitting: boolean;
 }
 
 const FALLBACK_DISTRACTORS: Record<string, string[]> = {
   en: [
-    'color', 'clock', 'cloud', 'clown', 'cloth', 'clone', 'clear', 'clean', 'client',
-    'decision', 'house', 'water', 'freedom', 'journey', 'silence', 'strength',
-    'memory', 'courage', 'bridge', 'garden', 'weather', 'truth', 'river', 'friendship',
-    'window', 'mountain', 'forest', 'future', 'resilient', 'wisdom', 'peace', 'storm'
+    'apple', 'bread', 'bridge', 'candle', 'castle', 'circle', 'cloud', 'courage',
+    'dancer', 'decision', 'desert', 'diamond', 'dream', 'eagle', 'echo', 'engine',
+    'family', 'feather', 'flower', 'forest', 'freedom', 'friendship', 'garden',
+    'harbor', 'history', 'horizon', 'island', 'journey', 'jungle', 'kitchen',
+    'ladder', 'lantern', 'meadow', 'memory', 'mirror', 'mountain', 'music', 'nature',
+    'ocean', 'palace', 'pathway', 'peace', 'planet', 'puzzle', 'rainbow', 'river',
+    'rocket', 'shadow', 'silence', 'silver', 'soldier', 'spark', 'starlight',
+    'statue', 'storm', 'stream', 'strength', 'sunrise', 'sunset', 'temple',
+    'thunder', 'treasure', 'valley', 'village', 'volcano', 'voyage', 'waterfall',
+    'weather', 'whisper', 'window', 'wisdom', 'wonder', 'writer', 'adventure', 'breeze',
   ],
   de: [
-    'die Farbe', 'die Uhr', 'die Wolke', 'der Clown', 'das Tuch', 'der Klon',
-    'das Haus', 'die Entscheidung', 'das Wasser', 'die Freiheit', 'die Reise',
-    'die Stille', 'die Stärke', 'die Erinnerung', 'der Mut', 'die Brücke',
-    'der Garten', 'das Wetter', 'die Wahrheit', 'der Fluss', 'die Freundschaft',
-    'das Fenster', 'der Berg', 'der Wald', 'die Zukunft', 'die Weisheit', 'der Frieden'
+    'der Apfel', 'das Brot', 'die Brücke', 'die Kerze', 'das Schloss', 'der Kreis',
+    'die Wolke', 'der Mut', 'der Tänzer', 'die Entscheidung', 'die Wüste', 'der Diamant',
+    'der Traum', 'der Adler', 'das Echo', 'der Motor', 'die Familie', 'die Feder',
+    'die Blume', 'der Wald', 'die Freiheit', 'die Freundschaft', 'der Garten',
+    'der Hafen', 'die Geschichte', 'der Horizont', 'die Insel', 'die Reise',
+    'der Dschungel', 'die Küche', 'die Leiter', 'die Laterne', 'die Wiese',
+    'die Erinnerung', 'der Spiegel', 'der Berg', 'die Musik', 'die Natur',
+    'der Ozean', 'der Palast', 'der Pfad', 'der Frieden', 'der Planet', 'das Rätsel',
+    'der Regenbogen', 'der Fluss', 'die Rakete', 'der Schatten', 'die Stille',
+    'das Silber', 'der Soldat', 'der Funke', 'das Sternenlicht', 'die Statue',
+    'der Sturm', 'der Bach', 'die Stärke', 'der Sonnenaufgang', 'der Sonnenuntergang',
+    'der Tempel', 'der Donner', 'der Schatz', 'das Tal', 'das Dorf', 'der Vulkan',
+    'die Seereise', 'der Wasserfall', 'das Wetter', 'das Flüstern', 'das Fenster',
+    'die Weisheit', 'das Wunder', 'der Schriftsteller', 'das Abenteuer', 'die Brise',
   ],
   bn: [
-    'রং / বর্ণ', 'ঘড়ি', 'মেঘ', 'বিদূষক', 'কাপড় / বস্ত্র', 'প্রতিরূপ',
-    'সিদ্ধান্ত', 'বাড়ি', 'জল / পানি', 'মুক্তি / স্বাধীনতা', 'ভ্রমণ', 'নীরবতা', 'শক্তি',
-    'স্মৃতি', 'সাহস', 'সেতু', 'বাগান', 'আবহাওয়া', 'সত্য', 'নদী', 'বন্ধুত্ব',
-    'জানালা', 'পাহাড়', 'বন', 'ভবিষ্যৎ', 'প্রজ্ঞা', 'শান্তি', 'সহনশীল / স্থিতিস্থাপক'
+    'আপেল', 'রুটি', 'সেতু', 'মোমবাতি', 'প্রাসাদ', 'বৃত্ত', 'মেঘ', 'সাহস',
+    'নৃত্যশিল্পী', 'সিদ্ধান্ত', 'মরুভূমি', 'হীরা', 'স্বপ্ন', 'ঈগল', 'প্রতিধ্বনি',
+    'ইঞ্জিন', 'পরিবার', 'পালক', 'ফুল', 'বন', 'স্বাধীনতা', 'বন্ধুত্ব', 'বাগান',
+    'বন্দর', 'ইতিহাস', 'দিগন্ত', 'দ্বীপ', 'ভ্রমণ', 'জঙ্গল', 'রান্নাঘর', 'মই',
+    'লণ্ঠন', 'তৃণভূমি', 'স্মৃতি', 'আয়না', 'পাহাড়', 'সঙ্গীত', 'প্রকৃতি', 'মহাসাগর',
+    'মহল', 'পথ', 'শান্তি', 'গ্রহ', 'ধাঁধা', 'রংধনু', 'নদী', 'রকেট', 'ছায়া',
+    'নীরবতা', 'রুপা', 'সৈনিক', 'স্ফুলিঙ্গ', 'নক্ষত্রালোক', 'মূর্তি', 'ঝড়', 'ঝর্ণা',
+    'শক্তি', 'সূর্যোদয়', 'সূর্যাস্ত', 'মন্দির', 'বজ্রপাত', 'গুপ্তধন', 'উপত্যকা',
+    'গ্রাম', 'আগ্নেয়গিরি', 'জলপ্রপাত', 'আবহাওয়া', 'ফিসফিস', 'জানালা', 'জ্ঞান',
+    'বিস্ময়', 'লেখক', 'অভিযান', 'বাতাস',
   ],
 };
 
@@ -74,7 +95,20 @@ export function QuizTrainer({
   const [direction, setDirection] = useState<'passive' | 'active'>('passive');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [answeredIncorrectly, setAnsweredIncorrectly] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Synchronously reset state during render when card or direction changes to eliminate any flash/glitch
+  const [prevCardId, setPrevCardId] = useState(card.id);
+  const [prevDirection, setPrevDirection] = useState(direction);
+  if (card.id !== prevCardId || direction !== prevDirection) {
+    setPrevCardId(card.id);
+    setPrevDirection(direction);
+    setSelectedIndex(null);
+    setIsAnswered(false);
+    setAnsweredIncorrectly(false);
+    setIsTransitioning(false);
+  }
 
   // Determine correct answer based on active direction
   const correctAnswer = useMemo(() => {
@@ -115,20 +149,17 @@ export function QuizTrainer({
       (item) => item.toLowerCase() !== correctAnswer.toLowerCase(),
     );
 
-    // Prefer words that share prefix letters for smart distractors (e.g. clone, clown, cloth for color)
-    const targetPrefix = correctAnswer.slice(0, 2).toLowerCase();
-    const sortedPool = [...poolArray].sort((a, b) => {
-      const aMatches = a.toLowerCase().startsWith(targetPrefix) ? 1 : 0;
-      const bMatches = b.toLowerCase().startsWith(targetPrefix) ? 1 : 0;
-      return bMatches - aMatches || Math.random() - 0.5;
-    });
+    // True Fisher-Yates random shuffle of the entire distractor pool to ensure unique, unpredictable choices
+    for (let i = poolArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [poolArray[i], poolArray[j]] = [poolArray[j], poolArray[i]];
+    }
 
-    // Select 5 distractors
-    const chosenDistractors = sortedPool.slice(0, 5);
+    // Select 5 unique random distractors
+    const chosenDistractors = poolArray.slice(0, 5);
 
-    // Combine with correct answer and shuffle
+    // Combine with correct answer and shuffle final 6 choices
     const combined = [correctAnswer, ...chosenDistractors];
-    // Fisher-Yates shuffle
     for (let i = combined.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [combined[i], combined[j]] = [combined[j], combined[i]];
@@ -148,6 +179,7 @@ export function QuizTrainer({
   useEffect(() => {
     setSelectedIndex(null);
     setIsAnswered(false);
+    setAnsweredIncorrectly(false);
     setIsTransitioning(false);
   }, [card.id, direction]);
 
@@ -176,22 +208,17 @@ export function QuizTrainer({
 
       const isCorrect = index === correctOptionIndex;
 
-      // Play pronunciation of target word upon answering
-      if (direction === 'passive') {
-        handlePlayAudio(card.word, activePair.source);
-      } else {
-        handlePlayAudio(card.word, activePair.source);
-      }
-
       if (isCorrect) {
-        // Automatically proceed after short visual feedback
+        setAnsweredIncorrectly(false);
+        // Automatically proceed after snappy 300ms visual feedback
         setIsTransitioning(true);
-        setTimeout(async () => {
-          await onAnswer(true);
+        setTimeout(() => {
+          onAnswer(true);
           setIsTransitioning(false);
-        }, 750);
+        }, 300);
       } else {
-        // For wrong answers, don't auto-advance immediately so the user can see what the right answer was
+        // For wrong answers, show Continue button and allow reviewing the correct answer
+        setAnsweredIncorrectly(true);
       }
     },
     [
@@ -199,19 +226,15 @@ export function QuizTrainer({
       submitting,
       isTransitioning,
       correctOptionIndex,
-      direction,
-      card.word,
-      activePair.source,
-      handlePlayAudio,
       onAnswer,
     ],
   );
 
   // Manual proceed for incorrect answer review
-  const handleProceedAfterWrong = useCallback(async () => {
+  const handleProceedAfterWrong = useCallback(() => {
     if (submitting || isTransitioning) return;
     setIsTransitioning(true);
-    await onAnswer(false);
+    onAnswer(false);
     setIsTransitioning(false);
   }, [submitting, isTransitioning, onAnswer]);
 
@@ -229,11 +252,9 @@ export function QuizTrainer({
       if (num >= 1 && num <= 6 && !isAnswered) {
         e.preventDefault();
         handleSelectOption(num - 1);
-      } else if (isAnswered && (e.code === 'Space' || e.code === 'Enter')) {
-        if (selectedIndex !== correctOptionIndex) {
-          e.preventDefault();
-          handleProceedAfterWrong();
-        }
+      } else if (answeredIncorrectly && (e.code === 'Space' || e.code === 'Enter')) {
+        e.preventDefault();
+        handleProceedAfterWrong();
       }
     };
 
@@ -241,10 +262,9 @@ export function QuizTrainer({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     isAnswered,
+    answeredIncorrectly,
     handleSelectOption,
     handleProceedAfterWrong,
-    selectedIndex,
-    correctOptionIndex,
   ]);
 
   // Word prompt display
@@ -419,8 +439,8 @@ export function QuizTrainer({
             })}
           </div>
 
-          {/* Continue button shown on incorrect answer review */}
-          {isAnswered && selectedIndex !== correctOptionIndex && (
+          {/* Continue button shown ONLY on incorrect answer review */}
+          {answeredIncorrectly && !isTransitioning && (
             <div className="pt-2 text-center animate-in fade-in-50 duration-150">
               <Button
                 onClick={handleProceedAfterWrong}

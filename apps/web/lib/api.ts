@@ -220,6 +220,7 @@ export const api = {
         sourceLanguage?: string;
         targetLanguage?: string;
         limit?: number;
+        exerciseType?: string;
       },
       bypassCache = false,
     ) => {
@@ -227,6 +228,7 @@ export const api = {
       if (params?.sourceLanguage) q.set('sourceLanguage', params.sourceLanguage);
       if (params?.targetLanguage) q.set('targetLanguage', params.targetLanguage);
       if (params?.limit) q.set('limit', String(params.limit));
+      if (params?.exerciseType) q.set('exerciseType', params.exerciseType);
       return fetcher<UserVocabulary[]>(`/practice/queue?${q.toString()}`, {
         cacheTtlMs: 15_000,
         bypassCache,

@@ -122,7 +122,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 pt-3 sm:pt-4 pb-6 sm:pb-8 space-y-5 sm:space-y-6">
         {/* Top Stats Overview */}
         <StatsBar stats={stats} loading={statsLoading} />
 

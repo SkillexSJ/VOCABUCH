@@ -20,13 +20,25 @@ export class PracticeService {
    * Prioritizes weak items (INCOMPLETE), overdue reviews, and new items.
    */
   async getPracticeQueue(userId: string, query: PracticeQueueQueryInput) {
+    await this.prisma.ensureDefaultUser(userId);
+
     const limit = Math.min(50, Math.max(1, query.limit || 20));
     const now = new Date();
 
-    const where: Prisma.UserVocabularyWhereInput = {
+    const isArticleMode = query.exerciseType === 'ARTICLE_GUESS';
+
+    const baseWhere: Prisma.UserVocabularyWhereInput = {
       userId,
       ...(query.sourceLanguage && { sourceLanguage: query.sourceLanguage }),
       ...(query.targetLanguage && { targetLanguage: query.targetLanguage }),
+      ...(isArticleMode && {
+        article: { not: null },
+        NOT: { article: '' },
+      }),
+    };
+
+    const reviewWhere: Prisma.UserVocabularyWhereInput = {
+      ...baseWhere,
       OR: [
         // Weak items that user failed previously
         { status: LearningStatus.INCOMPLETE },
@@ -37,15 +49,63 @@ export class PracticeService {
       ],
     };
 
-    // Sort by priorityScore descending so the weakest / most urgent items are practiced first
-    const items = await this.prisma.userVocabulary.findMany({
-      where,
+    // 1. Fetch weak, overdue, or newly saved cards
+    const dueItems = await this.prisma.userVocabulary.findMany({
+      where: reviewWhere,
       take: limit,
       orderBy: [
         { priorityScore: 'desc' },
         { nextReviewAt: 'asc' },
       ],
     });
+
+    let items = [...dueItems];
+
+    // 2. If fewer than limit, pull words that haven't been reviewed yet or least recently reviewed
+    if (items.length < limit) {
+      const remainingCount = limit - items.length;
+      const excludedIds = items.map((i) => i.id);
+
+      const candidatePool = await this.prisma.userVocabulary.findMany({
+        where: {
+          ...baseWhere,
+          id: { notIn: excludedIds },
+        },
+        take: Math.max(remainingCount * 3, 40),
+        orderBy: [
+          { lastReviewedAt: 'asc' },
+          { createdAt: 'desc' },
+        ],
+      });
+
+      // Split into unreviewed (never practiced) and reviewed (oldest first)
+      const unreviewed = candidatePool.filter((c) => !c.lastReviewedAt);
+      const reviewed = candidatePool.filter((c) => !!c.lastReviewedAt);
+
+      // Shuffle candidates to give a diverse, unique mix
+      const shuffledCandidates = [
+        ...unreviewed.sort(() => Math.random() - 0.5),
+        ...reviewed.sort(() => Math.random() - 0.5),
+      ];
+
+      items.push(...shuffledCandidates.slice(0, remainingCount));
+    }
+
+    // 3. Unlimited practice guarantee: If the user has words matching the mode but fewer than limit (e.g. 5 nouns),
+    // loop and cycle them so they can practice unlimited times in full rounds
+    if (items.length > 0 && items.length < limit) {
+      const original = [...items];
+      while (items.length < limit) {
+        const nextBatch = [...original].sort(() => Math.random() - 0.5);
+        items.push(...nextBatch.slice(0, limit - items.length));
+      }
+    }
+
+    // 4. Shuffle the session items so words don't appear in the exact same static sequence
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
 
     return items.map((item) => ({
       id: item.id,

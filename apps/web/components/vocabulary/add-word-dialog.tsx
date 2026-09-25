@@ -184,11 +184,23 @@ export function AddWordDialog({
             setNotes(first.definition);
             count++;
           }
+          if (first.example && !contextSentence) {
+            setContextSentence(first.example);
+            count++;
+          }
         }
+
+        const providerLabel = entry.sourceProvider
+          ? entry.sourceProvider.includes('gemini')
+            ? `${entry.sourceProvider} (Google AI)`
+            : entry.sourceProvider.includes('free')
+              ? `${entry.sourceProvider.split('/').pop()?.replace(':free', '')} (Free AI)`
+              : entry.sourceProvider.split('/').pop() || 'AI'
+          : 'dictionary';
 
         setAutofillMessage(
           count > 0
-            ? 'Autofilled from dictionary (article & plural included)!'
+            ? `Autofilled via ${providerLabel} (${count} fields populated)!`
             : 'Dictionary entry found, please fill translation.',
         );
       } else {
