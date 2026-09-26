@@ -87,25 +87,12 @@ async function main() {
     return;
   }
 
-  // Step 3: Fetch existing words from database to skip DB duplicates
-  console.log('🔍 Checking existing vocabulary in database...');
-  const existingWords = await prisma.userVocabulary.findMany({
-    where: { userId: defaultUserId },
-    select: { word: true, sourceLanguage: true },
-  });
-
-  const existingDbSet = new Set<string>(
-    existingWords.map((w) => `${w.sourceLanguage.toLowerCase()}:${w.word.trim().toLowerCase()}`)
-  );
-  console.log(`ℹ️  Found ${existingDbSet.size} words currently in database.\n`);
-
+  // Step 3: Process all JSON files in the data directory and deduplicate in memory
   const seenInBatch = new Set<string>();
   const toInsert: any[] = [];
   let totalInputCount = 0;
   let skippedBatchDuplicates = 0;
-  let skippedDbDuplicates = 0;
 
-  // Step 4: Process all JSON files in the data directory
   for (const file of jsonFiles) {
     const filePath = path.join(dataDir, file);
     console.log(`📂 Reading: ${file}`);
@@ -137,20 +124,14 @@ async function main() {
         const targetLanguage = (item.targetLanguage || 'en').trim().toLowerCase();
         const dedupeKey = `${sourceLanguage}:${word.toLowerCase()}`;
 
-        // Duplicate check #1: Against other items in this batch
+        // Deduplicate against other items in this seed file batch
         if (seenInBatch.has(dedupeKey)) {
           skippedBatchDuplicates++;
           continue;
         }
         seenInBatch.add(dedupeKey);
 
-        // Duplicate check #2: Against words already in PostgreSQL
-        if (existingDbSet.has(dedupeKey)) {
-          skippedDbDuplicates++;
-          continue;
-        }
-
-        // Add to insert queue
+        // Queue for insertion (PostgreSQL unique constraint handles DB-level uniqueness)
         toInsert.push({
           userId: defaultUserId,
           word,
@@ -178,26 +159,38 @@ async function main() {
     }
   }
 
-  // Step 5: Bulk insert unique items into database
+  // Step 4: Chunked Bulk Insert leveraging PostgreSQL's @@unique constraint
+  // We chunk into batches (e.g. 500 rows) to stay safely below PostgreSQL's 65,535 parameter limit
+  const CHUNK_SIZE = 500;
+  let totalInserted = 0;
+
   if (toInsert.length > 0) {
-    console.log(`\n⏳ Inserting ${toInsert.length} unique words into database...`);
-    const result = await prisma.userVocabulary.createMany({
-      data: toInsert,
-      skipDuplicates: true,
-    });
-    console.log(`✅ Inserted ${result.count} words successfully!`);
+    console.log(`\n⏳ Inserting ${toInsert.length} unique candidates in chunks of ${CHUNK_SIZE}...`);
+
+    for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
+      const chunk = toInsert.slice(i, i + CHUNK_SIZE);
+      const result = await prisma.userVocabulary.createMany({
+        data: chunk,
+        skipDuplicates: true, // Uses PostgreSQL "ON CONFLICT DO NOTHING" via @@unique([userId, sourceLanguage, word])
+      });
+      totalInserted += result.count;
+    }
+
+    console.log(`✅ Finished bulk insertion. ${totalInserted} new words added to database!`);
   } else {
-    console.log('\nℹ️ No new words to insert (all items already exist in database or were duplicates).');
+    console.log('\nℹ️ No candidate words found in seed files.');
   }
 
-  // Step 6: Summary Report
+  const skippedDbDuplicates = toInsert.length - totalInserted;
+
+  // Step 5: Summary Report
   console.log('\n======================================================');
   console.log('📊 Seeding Summary Report');
   console.log('======================================================');
   console.log(`📥 Total words loaded from files:  ${totalInputCount}`);
   console.log(`🔄 Duplicate words within files:    ${skippedBatchDuplicates} (skipped)`);
   console.log(`⚡ Already existed in database:    ${skippedDbDuplicates} (skipped)`);
-  console.log(`✨ Newly added to database:        ${toInsert.length}`);
+  console.log(`✨ Newly added to database:        ${totalInserted}`);
   console.log('======================================================\n');
 }
 

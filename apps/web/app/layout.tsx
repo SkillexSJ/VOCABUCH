@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VocabPlatform - Language Learning",
+  title: "VocaBuch",
   description: "Vocabulary acquisition and spaced-repetition platform",
 };
 
